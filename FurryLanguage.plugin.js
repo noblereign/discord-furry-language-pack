@@ -33,7 +33,7 @@ const config = {
 			"title": "I'm sorry for being so lacking in skill",
 			"type": "fixed",
 			"items": [
-                "Fixed the 'your server is losing a level' screen crashing clients.)"
+                "Fixed the 'your server is losing a level' screen crashing clients."
 			]
 		},
         {
