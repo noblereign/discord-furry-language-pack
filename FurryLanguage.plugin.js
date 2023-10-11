@@ -24,7 +24,7 @@ const config = {
 			"github_username": "TayIorRobinson",
             "twitter_username": "TayIorRobinson",
 		}],
-		"version": "1.4.0-beta",
+		"version": "1.4.1-beta",
 		"description": "The default Discord language pack is pleasant, you say? Here. **Let me fix that for you.** *Fair warning, this language pack is extremely stereotypical, somewhat depraved, and also contains some swearing.*",
 		"github_raw": "https://raw.githubusercontent.com/noblereign/discord-furry-language-pack/master/FurryLanguage.plugin.js",
 	},
