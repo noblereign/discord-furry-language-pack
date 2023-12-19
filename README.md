@@ -1,11 +1,26 @@
 # discord-furry-language-pack
  An amelioration of an ancient concept that me and a friend thought of in 2020. I am so sorry.
 ## Installation
-**Runs on [*BetterDiscord*](https://betterdiscord.app), requires [*Zere's Plugin Library*](https://betterdiscord.app/plugin/ZeresPluginLibrary).**
+
+### [*BetterDiscord*](https://betterdiscord.app)
+
+**Requires [*Zere's Plugin Library*](https://betterdiscord.app/plugin/ZeresPluginLibrary).**
 
 Once you have that, just download the plugin, drag it into your Plugins folder and switch it on. Welcome to your new hell.
 
-If you want to get rid of the owospeak in the chat, you can disable it in the plugin's settings.
+---
+
+### [*Vencord*](https://vencord.dev/)
+
+Download the repo and grab the `furryLanguage` folder from within `vencord`.
+
+[*Build Vencord from source*](https://github.com/Vendicated/Vencord/blob/main/docs/1_INSTALLING.md) with the `furryLanguage` folder in your `src/plugins` folder.
+
+Or something like that.
+
+---
+
+If you want to get rid of the owospeak in the chat, you can disable it in the plugin's settings. (Vencord users are safe from this... for now.)
 ## Disclaimers
 Before you install: Be aware that ***this language pack is pretty stereotypical, contains mildly depraved language, and has infrequent swearing.*** I'm not responsible if your parents come in and Discord drops an F-bomb or tells them to "Upload Yiff". If you think that could possibly happen to you, don't install this. (If you think at all, don't install this)
 
