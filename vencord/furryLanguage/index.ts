@@ -11,6 +11,9 @@ import { waitFor,filters } from "@webpack";
 
 var unpatchableAtBoot = {}
 
+//uwuifier is disabled cause it dont work lol
+//also THANK YOU TAY FOR FIGURING OUT HOW VENCORD PLUGINS WORK FOR ME these are so hard i s2g
+
 const settings = definePluginSettings({
     /*uwuing: {
         description: "“Enhance” chat messages • Run all of your chat messages through an UwUifier for extra flavor. (client-side)",
