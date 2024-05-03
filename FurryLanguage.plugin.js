@@ -68,8 +68,8 @@ const config = {
             note: 'Replace Convention Knotting with Convention Funding',
             value: "og",
             options: [
-                {name: "Keep it clean with capitalism", value: "newgen"},
-                {name: "Give it to me raw like the good ol' days", value: "og"}
+                {name: "Give it to me raw like the good ol' days", value: "og"},
+                {name: "Keep it clean with capitalism", value: "newgen"}
             ]
         },
     ]
