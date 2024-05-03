@@ -18831,5 +18831,5 @@ export const fundAlts = {
 	"BOOSTING_MARKETING_REDESIGN_EXPERIMENT_FAQ_ANSWER_1": "Investment allow you to support your favorite Conventions, by unlocking perks for everyone in them. The more Funds a con has, the more epic the perks that can be unlocked. See the chart above for more details.",
 	"BOOSTING_MARKETING_REDESIGN_EXPERIMENT_FAQ_ANSWER_2": "You can Fund this convention directly on this page! If you want to Fund a different con, you can find step-by-step instructions [in our Help Center]({helpCenterUrl}).",
 	"BOOSTING_MARKETING_REDESIGN_EXPERIMENT_FAQ_ANSWER_3": "Yes, you can Fund a con as many times as you want! The more Funds the con gets, the better the perks that will be unlocked.",
-	"BOOSTING_MARKETING_REDESIGN_EXPERIMENT_FAQ_ANSWER_4": "Absolutely! Investments are a great way to support your favorite conventions. When you Fund a con, you'll be recognized with a special Attendee List Icon, an Investor role, and a Lanyard Badge.",
+	"BOOSTING_MARKETING_REDESIGN_EXPERIMENT_FAQ_ANSWER_4": "Absolutely! Investments are a great way to support your favorite conventions. When you Fund a con, you'll be recognized with a special Attendee List Icon, an Investor role, and a Lanyard Badge."
 }
