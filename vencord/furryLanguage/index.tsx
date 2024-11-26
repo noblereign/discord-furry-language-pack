@@ -1,30 +1,27 @@
 /*
  * Vencord, a Discord client mod
- * Copyright (c) 2023 Vendicated and contributors
+ * Copyright (c) 2024 Vendicated and contributors
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import definePlugin, { OptionType } from "@utils/types";
 import { definePluginSettings } from "@api/Settings";
-import { yiffcordLanguage, tailAlts, fundAlts } from "./language.js";
-import { exportJSON } from "./exporter.js";
-import { waitFor,filters } from "@webpack";
-import { Forms, Button, React, Toasts } from "@webpack/common";
+import definePlugin, { OptionType } from "@utils/types";
 
-//TODO - Implement FormattedMessage once implemented by https://github.com/Vendicated/Vencord/pull/2149
+import { Button, Forms, React, Toasts } from "@webpack/common";
+//import { runtimeHashMessageKey } from "@utils/intlHash";
 
-interface unpatchableType {
-    [key: string]: string; // Assuming all values are strings
-}
-const unpatchableAtBoot : unpatchableType = {}
+import { exportJSON, exportUnknown, exportSpecial, exportKnownSpecial } from "./exporter.js";
+import { fundAlts, tailAlts, yiffcordLanguage } from "./language.js";
+import { yiffcordLanguageUnhashed } from "./language_legacy.js";
+import { showNotification } from "@api/Notifications";
 
-//uwuifier is disabled cause it dont work lol
-//also THANK YOU TAY FOR FIGURING OUT HOW VENCORD PLUGINS WORK FOR ME these are so hard i s2g
+// uwuifier is disabled cause it dont work lol
+// also THANK YOU TAY FOR FIGURING OUT HOW VENCORD PLUGINS WORK FOR ME these are so hard i s2g
 
 // wanna get the messages yourself? run this in the command bar:
 // Vencord.Webpack.wreq(Vencord.Webpack.findModuleId("Imagine a place"))
 const settings = definePluginSettings({
-    /*uwuing: {
+    /* uwuing: {
         description: "“Enhance” chat messages • Run all of your chat messages through an UwUifier for extra flavor. (client-side)",
         type: OptionType.SELECT,
         options: [
@@ -62,11 +59,11 @@ const settings = definePluginSettings({
             },
         ] as const,
         onChange(value: string) {
-            refreshTails()
+            refreshTails();
         }
     },
     funds: {
-        description: "Funds replace Knots • Replace Convention Knots with Convention Funding",
+        description: "Funds replace Knots • Replace Convention Knotting with Convention Funding",
         type: OptionType.SELECT,
         options: [
             {
@@ -80,7 +77,7 @@ const settings = definePluginSettings({
             },
         ] as const,
         onChange(value: string) {
-            refreshFunds()
+            refreshFunds();
         }
     },
     exportJsonDesc: {
@@ -92,11 +89,35 @@ const settings = definePluginSettings({
             </Forms.FormText>
     },
     exportJson: {
-        description: "Want to play around with the Discord language files yourself? Gotcha covered.",
+        description: "Exports the default language pack in a JSON format.",
         type: OptionType.COMPONENT,
         component: () =>
             <Button onClick={exportJSON}>
                 Export JSON
+            </Button>
+    },
+    exportUnknown: {
+        description: "Exports the default language pack in a JSON format. Doesn't export keys that exist in the language pack.",
+        type: OptionType.COMPONENT,
+        component: () =>
+            <Button onClick={exportUnknown}>
+                Export unrecognized keys only
+            </Button>
+    },
+    exportSpecial: {
+        description: "Exports the default language pack in a JSON format. Only exports keys that have special formatting (e.g. plurals, links, placeholders, etc)",
+        type: OptionType.COMPONENT,
+        component: () =>
+            <Button onClick={exportSpecial}>
+                Export formatted keys only
+            </Button>
+    },
+    exportKnownSpecial: {
+        description: "Exports the default language pack in a JSON format. Only exports keys that have special formatting (e.g. plurals, links, placeholders, etc) and are known to the language pack",
+        type: OptionType.COMPONENT,
+        component: () =>
+            <Button onClick={exportKnownSpecial}>
+                Export known formatted keys only
             </Button>
     }
 });
@@ -215,38 +236,17 @@ function uwuRevertAll() {
 */
 
 function refreshTails() {
-    console.log("Refreshing claws and tails");
-    for (const [key, value] of Object.entries(yiffcordLanguage)) {
-        if (LocaleManager._provider._context.messages[key]) {
-            if (tailAlts[key]) {
-                if (settings.store.tails == "fluffy") {
-                    LocaleManager._provider._context.messages[key] = tailAlts[key];
-                } else {
-                    LocaleManager._provider._context.messages[key] = value;
-                }
-            }
-        }
-    }
-    LocaleManager._provider.refresh()
+    Toasts.show({
+        type: Toasts.Type.MESSAGE,
+        message: "Please reload for this change to take full effect (CTRL + R)",
+        id: Toasts.genId()
+    });
 }
 
 function refreshFunds() {
-    console.log("Refreshing funds and knots");
-    for (const [key, value] of Object.entries(yiffcordLanguage)) {
-        if (LocaleManager._provider._context.messages[key]) {
-            if (fundAlts[key]) {
-                if (settings.store.funds == "newgen") {
-                    LocaleManager._provider._context.messages[key] = fundAlts[key];
-                } else {
-                    LocaleManager._provider._context.messages[key] = value;
-                }
-            }
-        }
-    }
-    LocaleManager._provider.refresh()
     Toasts.show({
         type: Toasts.Type.MESSAGE,
-        message: `You may need to reload for this change to take full effect (CTRL + R)`,
+        message: "Please reload for this change to take full effect (CTRL + R)",
         id: Toasts.genId()
     });
 }
@@ -266,16 +266,38 @@ export default definePlugin({
     ],
     settings,
     patches: [
-        {
+        { // Language pack replacement (Legacy)
             find: "_applyMessagesForLocale(",
             replacement: {
                 match: /_applyMessagesForLocale\((\i),(\i)\)\{/,
                 replace: "$& $1 = $self.patchLanguage($1, $2);",
             }
-        }
+        },
+        { // Language pack replacement (discord intl)
+            find: "getMessageValue(",
+            replacement: {
+                match: /if\((\S) in this\.messages\[(.*?)\]\)\{let n=this\.messages\[(.*?)\]\[(.*?)\]/,
+                replace: "if ($1 in this.messages[$2]){let n=$self.localizeString($4,this.messages[$3][$4])"
+            }
+        },
+        { // Error handler (to prevent crashing)
+            find: "} is not a known option for select value ${",
+            replacement: {
+                match: /throw new a\.MissingValueError\((\w+),(\w+)\)/,
+                replace: "{ if (e.pushLiteralText) {e.pushLiteralText($self.handleLanguageError($1, $2))} else {$self.handleLanguageError($1, $2)} continue }"
+            }
+        },
+        { // Its too late (Error with notification)
+            find: "The intl string context variable",
+            replacement: {
+                match: /return .\.call\(\w+,'The intl string context variable "'\.concat\((\w+).*?\.concat\((\w+).*?\).*?\}/,
+                replace: "$self.throwLanguageError($1, $2); $&"
+            }
+        },
+
     ],
 
-    /*flux: {
+    /* flux: {
         MESSAGE_CREATE({ optimistic, type, message, channelId }) {
             if (settings.store.uwuing == "uwu") {
                 uwuApplyAll(); //i give up on optimization lol
@@ -290,150 +312,133 @@ export default definePlugin({
     },*/
 
     start() {
-        // waitFor(filters.byProps("getLocale", "Messages", "initialLanguageLoad"), module => { // For some reason, this got changed into the locale manager of the Discord website(???)
-
-        let moduleID : string | null = Vencord.Webpack.findModuleId("en-US",".jsona")
-        if (moduleID !== null) {
-            LocaleManager = Vencord.Webpack.wreq(parseInt(moduleID)).default
-            if (LocaleManager !== null) {
-                for (const [key, value] of Object.entries(unpatchableAtBoot)) {
-                    if (LocaleManager._provider._context.messages[key]) {
-                        if (tailAlts[key] && (settings.store.tails == "fluffy")) { // Replace Claws with Tails when user has it toggled
-                            LocaleManager._provider._context.messages[key] = tailAlts[key];
-                        } else if (fundAlts[key] && (settings.store.funds == "newgen")) { // Replace Knots with Funds when user has it toggled
-                            LocaleManager._provider._context.messages[key] = fundAlts[key];
-                        } else if (settings.store.funds == "newgen") { // auto-localize for boost strings that have no Funds alts
-                            LocaleManager._provider._context.messages[key] = value
-                            .replace(/convention knot/g, (settings.store.funds == "newgen") ? "investment" : "convention knot")
-                            .replace(/Convention knot/g, (settings.store.funds == "newgen") ? "Investment" : "Convention knot")
-                            .replace(/Convention Knot/g, (settings.store.funds == "newgen") ? "Investment" : "Convention Knot")
-                            .replace(/knotter/g, (settings.store.funds == "newgen") ? "investor" : "knotter")
-                            .replace(/Knotter/g, (settings.store.funds == "newgen") ? "Investor" : "Knotter")
-                            .replace(/KNOTTER/g, (settings.store.funds == "newgen") ? "INVESTOR" : "KNOTTER")
-                            .replace(/knott/g, (settings.store.funds == "newgen") ? "fund" : "knott")
-                            .replace(/Knott/g, (settings.store.funds == "newgen") ? "Fund" : "Knott")
-                            .replace(/KNOTT/g, (settings.store.funds == "newgen") ? "FUND" : "KNOTT")
-                            .replace(/knot/g, (settings.store.funds == "newgen") ? "fund" : "knot")
-                            .replace(/Knot/g, (settings.store.funds == "newgen") ? "Fund" : "Knot")
-                            .replace(/KNOT/g, (settings.store.funds == "newgen") ? "FUND" : "KNOT")
-                            .replace(/deflat/g, (settings.store.funds == "newgen") ? "devalu" : "deflat")
-                            .replace(/Deflat/g, (settings.store.funds == "newgen") ? "Devalu" : "Deflat")
-                            .replace(/DEFLAT/g, (settings.store.funds == "newgen") ? "DEVALU" : "DEFLAT")
-                            .replace(/bottom level/g, (settings.store.funds == "newgen") ? "VC tier" : "bottom level")
-                            .replace(/Bottom level/g, (settings.store.funds == "newgen") ? "VC tier" : "Bottom level")
-                            .replace(/Bottom Level/g, (settings.store.funds == "newgen") ? "VC Tier" : "Bottom Level");
-                        } else {
-                            LocaleManager._provider._context.messages[key] = value;
-                        }
-                    }
-                }
-                /*if (settings.store.uwuing == "uwu") {
-                    uwuApplyAll();
-                }*/
-            } else {
-                Toasts.show({
-                    type: Toasts.Type.FAILURE,
-                    message: `Furry Language Pack failed to fully load. The plugin may need updating. (can't find locale manager)`,
-                    id: Toasts.genId()
-                });
-            }
-        } else {
+        const moduleID: string | null = Vencord.Webpack.findModuleId("} is not a known option for select value ${");
+        if (moduleID === null) {
             Toasts.show({
                 type: Toasts.Type.FAILURE,
-                message: `Furry Language Pack failed to fully load. The plugin may need updating. (can't find module)`,
+                message: "Furry Language Pack failed to load. The plugin needs an update. (can't find intl module)",
                 id: Toasts.genId()
             });
         }
     },
     stop() {
-        for (const [key, value] of Object.entries(LocaleManager._provider._context.defaultMessages)) {
-            if (LocaleManager._provider._context.messages[key]) {
-                LocaleManager._provider._context.messages[key] = value;
-            }
-        }
-        LocaleManager._provider.refresh()
-        //uwuRevertAll()
+        Toasts.show({
+            type: Toasts.Type.MESSAGE,
+            message: "Please reload for this change to take full effect (CTRL + R)",
+            id: Toasts.genId()
+        });
+
+        // uwuRevertAll()
+    },
+
+    autoLocalize(str: string) {
+        return str
+            .replace(/(discord)/gi, "Yiffcord")
+            .replace(/(member)/g, "fur")
+            .replace(/(server)/g, "convention")
+            .replace(/\b(a[u|w])/g, "paw")
+            .replace(/(mod)/g, "mawd")
+            .replace(/boost level/g, (settings.store.funds == "newgen") ? "VC tier" : "bottom level")
+            .replace(/booster/g, (settings.store.funds == "newgen") ? "investor" : "knotter")
+            .replace(/boosti/g, (settings.store.funds == "newgen") ? "fundi" : "knotti")
+            .replace(/boost/g, (settings.store.funds == "newgen") ? "fund" : "knot")
+            .replace(/text channel/g, "roleplay")
+            .replace(/voice channel/g, "room party")
+            // uppercase at beginning
+            .replace(/(Member)/g, "Fur")
+            .replace(/(Server)/g, "Convention")
+            .replace(/\b(A[u|w])/g, "Paw")
+            .replace(/(Mod)/g, "Mawd")
+            .replace(/Boost level/g, (settings.store.funds == "newgen") ? "VC tier" : "Bottom level")
+            .replace(/Booster/g, (settings.store.funds == "newgen") ? "Investor" : "Knotter")
+            .replace(/Boosti/g, (settings.store.funds == "newgen") ? "Fundi" : "Knotti")
+            .replace(/Boost/g, (settings.store.funds == "newgen") ? "Fund" : "Knot")
+            .replace(/Text Channel/g, "Roleplay")
+            .replace(/Voice Channel/g, "Room Party")
+            // uppercase all
+            .replace(/(MEMBER)/g, "FUR")
+            .replace(/(SERVER)/g, "CONVENTION")
+            .replace(/\b(A[U|W])/g, "PAW")
+            .replace(/(MOD)/g, "MAWD")
+            .replace(/Boost Level/g, (settings.store.funds == "newgen") ? "VC Tier" : "Bottom Level")
+            .replace(/BOOSTER/g, (settings.store.funds == "newgen") ? "INVESTOR" : "KNOTTER")
+            .replace(/BOOSTI/g, (settings.store.funds == "newgen") ? "FUNDI" : "KNOTTI")
+            .replace(/BOOST/g, (settings.store.funds == "newgen") ? "FUND" : "KNOT")
+            .replace(/TEXT CHANNEL/g, "ROLEPLAY")
+            .replace(/VOICE CHANNEL/g, "ROOM PARTY");
+    },
+
+    addCapitalism(str: string) {
+        return str
+            .replace(/convention knot/g, (settings.store.funds == "newgen") ? "investment" : "convention knot")
+            .replace(/Convention knot/g, (settings.store.funds == "newgen") ? "Investment" : "Convention knot")
+            .replace(/Convention Knot/g, (settings.store.funds == "newgen") ? "Investment" : "Convention Knot")
+            .replace(/knotter/g, (settings.store.funds == "newgen") ? "investor" : "knotter")
+            .replace(/Knotter/g, (settings.store.funds == "newgen") ? "Investor" : "Knotter")
+            .replace(/KNOTTER/g, (settings.store.funds == "newgen") ? "INVESTOR" : "KNOTTER")
+            .replace(/knott/g, (settings.store.funds == "newgen") ? "fund" : "knott")
+            .replace(/Knott/g, (settings.store.funds == "newgen") ? "Fund" : "Knott")
+            .replace(/KNOTT/g, (settings.store.funds == "newgen") ? "FUND" : "KNOTT")
+            .replace(/knot/g, (settings.store.funds == "newgen") ? "fund" : "knot")
+            .replace(/Knot/g, (settings.store.funds == "newgen") ? "Fund" : "Knot")
+            .replace(/KNOT/g, (settings.store.funds == "newgen") ? "FUND" : "KNOT")
+            .replace(/deflat/g, (settings.store.funds == "newgen") ? "devalu" : "deflat")
+            .replace(/Deflat/g, (settings.store.funds == "newgen") ? "Devalu" : "Deflat")
+            .replace(/DEFLAT/g, (settings.store.funds == "newgen") ? "DEVALU" : "DEFLAT")
+            .replace(/bottom level/g, (settings.store.funds == "newgen") ? "VC tier" : "bottom level")
+            .replace(/Bottom level/g, (settings.store.funds == "newgen") ? "VC tier" : "Bottom level")
+            .replace(/Bottom Level/g, (settings.store.funds == "newgen") ? "VC Tier" : "Bottom Level");
     },
 
     localizeString(key: string, original: any) {
+        if (yiffcordLanguageUnhashed[key]) {
+            console.log("[Furry Language Pack] legacy key detected:", key);
+            return yiffcordLanguageUnhashed[key];
+        }
+
         if (yiffcordLanguage[key]) {
-            if (original.includes("$") || original.includes("{")) {
-                if ((original.includes("!!") && !yiffcordLanguage[key].includes("!!")) || (original.includes("$") && !yiffcordLanguage[key].includes("$")) || (original.includes("}") && !yiffcordLanguage[key].includes("}")) || (original.includes("{") && !yiffcordLanguage[key].includes("{"))) {
-                    console.warn("[Furry Language Pack]",key,"DOES NOT MATCH PROPERLY AND IS ORIGINAL TO PREVENT A CRASH!");
-                    console.log(original);
-                    console.log(yiffcordLanguage[key])
-                    return original;
+            if (tailAlts[key] && (settings.store.tails == "fluffy")) { // Replace Claws with Tails when user has it toggled
+                return tailAlts[key];
+            } else if (fundAlts[key] && (settings.store.funds == "newgen")) { // Replace Knots with Funds when user has it toggled
+                return fundAlts[key];
+            } else if (settings.store.funds == "newgen") { // auto-localize for boost strings that have no Funds alts
+                if (typeof yiffcordLanguage[key] === 'string') {
+                    return this.addCapitalism(yiffcordLanguage[key]);
+                } else if (typeof yiffcordLanguage[key] === 'object') {
+                    if (Array.isArray(yiffcordLanguage[key])) {
+                        let modified = structuredClone(yiffcordLanguage[key]);
+                        for (const [index, value] of Object.entries(modified)) {
+                            if (typeof value === 'string') {
+                                modified[index] = this.addCapitalism(value);
+                            }
+                        }
+                        return modified;
+                    } else {
+                        console.log("[Furry Language Pack] idk what this is");
+                        console.log(yiffcordLanguage[key]);
+                        return yiffcordLanguage[key];
+                    }
                 } else {
-                    unpatchableAtBoot[key] = yiffcordLanguage[key] // If
-                    return original;
-                };
-            } else {
-                if (tailAlts[key] && (settings.store.tails == "fluffy")) { // Replace Claws with Tails when user has it toggled
-                    return tailAlts[key];
-                } else if (fundAlts[key] && (settings.store.funds == "newgen")) { // Replace Knots with Funds when user has it toggled
-                    return fundAlts[key];
-                } else if (settings.store.funds == "newgen") { // auto-localize for boost strings that have no Funds alts
-                    return yiffcordLanguage[key]
-                    .replace(/convention knot/g, (settings.store.funds == "newgen") ? "investment" : "convention knot")
-                    .replace(/Convention knot/g, (settings.store.funds == "newgen") ? "Investment" : "Convention knot")
-                    .replace(/Convention Knot/g, (settings.store.funds == "newgen") ? "Investment" : "Convention Knot")
-                    .replace(/knotter/g, (settings.store.funds == "newgen") ? "investor" : "knotter")
-                    .replace(/Knotter/g, (settings.store.funds == "newgen") ? "Investor" : "Knotter")
-                    .replace(/KNOTTER/g, (settings.store.funds == "newgen") ? "INVESTOR" : "KNOTTER")
-                    .replace(/knott/g, (settings.store.funds == "newgen") ? "fund" : "knott")
-                    .replace(/Knott/g, (settings.store.funds == "newgen") ? "Fund" : "Knott")
-                    .replace(/KNOTT/g, (settings.store.funds == "newgen") ? "FUND" : "KNOTT")
-                    .replace(/knot/g, (settings.store.funds == "newgen") ? "fund" : "knot")
-                    .replace(/Knot/g, (settings.store.funds == "newgen") ? "Fund" : "Knot")
-                    .replace(/KNOT/g, (settings.store.funds == "newgen") ? "FUND" : "KNOT")
-                    .replace(/deflat/g, (settings.store.funds == "newgen") ? "devalu" : "deflat")
-                    .replace(/Deflat/g, (settings.store.funds == "newgen") ? "Devalu" : "Deflat")
-                    .replace(/DEFLAT/g, (settings.store.funds == "newgen") ? "DEVALU" : "DEFLAT")
-                    .replace(/bottom level/g, (settings.store.funds == "newgen") ? "VC tier" : "bottom level")
-                    .replace(/Bottom level/g, (settings.store.funds == "newgen") ? "VC tier" : "Bottom level")
-                    .replace(/Bottom Level/g, (settings.store.funds == "newgen") ? "VC Tier" : "Bottom Level");
-                } else {
-                    return yiffcordLanguage[key]
+                    return yiffcordLanguage[key];
                 }
+            } else {
+                return yiffcordLanguage[key];
             }
         } else {
-            // disable auto-localization on templated strings - discord will crash if they're not in the right format
-            if (original.includes("$") || original.includes("{")) return original;
-            console.log("[Furry Language Pack]",key,"was auto-localized.");
-            return original
-                .replace(/(discord)/gi, "Yiffcord")
-                .replace(/(member)/g, "fur")
-                .replace(/(server)/g, "convention")
-                .replace(/\b(a[u|w])/g, "paw")
-                .replace(/(mod)/g, "mawd")
-                .replace(/boost level/g, (settings.store.funds == "newgen") ? "VC tier" : "bottom level")
-                .replace(/booster/g, (settings.store.funds == "newgen") ? "investor" : "knotter")
-                .replace(/boosti/g, (settings.store.funds == "newgen") ? "fundi" : "knotti")
-                .replace(/boost/g, (settings.store.funds == "newgen") ? "fund" : "knot")
-                .replace(/text channel/g, "roleplay")
-                .replace(/voice channel/g, "room party")
-                // uppercase at beginning
-                .replace(/(Member)/g, "Fur")
-                .replace(/(Server)/g, "Convention")
-                .replace(/\b(A[u|w])/g, "Paw")
-                .replace(/(Mod)/g, "Mawd")
-                .replace(/Boost level/g, (settings.store.funds == "newgen") ? "VC tier" : "Bottom level")
-                .replace(/Booster/g, (settings.store.funds == "newgen") ? "Investor" : "Knotter")
-                .replace(/Boosti/g, (settings.store.funds == "newgen") ? "Fundi" : "Knotti")
-                .replace(/Boost/g, (settings.store.funds == "newgen") ? "Fund" : "Knot")
-                .replace(/Text Channel/g, "Roleplay")
-                .replace(/Voice Channel/g, "Room Party")
-                // uppercase all
-                .replace(/(MEMBER)/g, "FUR")
-                .replace(/(SERVER)/g, "CONVENTION")
-                .replace(/\b(A[U|W])/g, "PAW")
-                .replace(/(MOD)/g, "MAWD")
-                .replace(/Boost Level/g, (settings.store.funds == "newgen") ? "VC Tier" : "Bottom Level")
-                .replace(/BOOSTER/g, (settings.store.funds == "newgen") ? "INVESTOR" : "KNOTTER")
-                .replace(/BOOSTI/g, (settings.store.funds == "newgen") ? "FUNDI" : "KNOTTI")
-                .replace(/BOOST/g, (settings.store.funds == "newgen") ? "FUND" : "KNOT")
-                .replace(/TEXT CHANNEL/g, "ROLEPLAY")
-                .replace(/VOICE CHANNEL/g, "ROOM PARTY");
+            if (typeof original === 'string') {
+                return this.autoLocalize(original);
+            } else {
+                if (typeof original === 'object') {
+                    if (Array.isArray(original)) {
+                        for (const [index, value] of Object.entries(original)) {
+                            if (typeof value === 'string') {
+                                original[index] = this.autoLocalize(value);
+                            }
+                        }
+                    }
+                }
+                return original;
+            }
         }
 
     },
@@ -444,6 +449,24 @@ export default definePlugin({
             language[key] = this.localizeString(key, language[key]);
         }
         return language;
+    },
+
+    throwLanguageError(variable, pattern) {
+        showNotification({
+            title: "Furry Language Pack caused a crash!",
+            body: `The variable "${variable}" was malformed.\nPlease report this to the GitHub, as it is likely an error in the language pack files.`,
+            color: "var(--red-360)"
+        });
+    },
+
+    handleLanguageError(variable, pattern) {
+        console.warn(`[Furry Language Pack] The variable "${variable}" was malformed.\nPlease report this to the GitHub, as it is likely an error in the language pack files.`);
+        Toasts.show({
+            type: Toasts.Type.FAILURE,
+            message: `Furry Language Pack prevented a crash. Please report this issue to the GitHub! (Malformed variable: ${variable})`,
+            id: Toasts.genId()
+        });
+        return `!!{${variable}}!!`;
     }
 });
 

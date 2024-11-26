@@ -1,6 +1,6 @@
 /*
  * Vencord, a modification for Discord's desktop app
- * Copyright (c) 2023 Vendicated and contributors
+ * Copyright (c) 2024 Vendicated and contributors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,22 +17,49 @@
 */
 
 import { Toasts } from "@webpack/common";
+import { fundAlts, tailAlts, yiffcordLanguage } from "./language.js";
+
 // 99% of this is coppied from src\utils\settingsSync.ts
 
 // that's crazy bruh -🐺
 
 // a lot of this taken from the gifCollections plugin because i don't know much typescript/vencord plugin dev
 
-export async function exportJSON() {
-    let languageJSON = null
+async function handleExport(ignoreKnown, ignoreStrings) {
+    let languageJSON = null;
     try {
-        let moduleID : string | null = Vencord.Webpack.findModuleId("Imagine a place")
+        let moduleID: string | null = Vencord.Webpack.findModuleId("Imagine a place");
         if (moduleID !== null) {
-            languageJSON = Vencord.Webpack.wreq(parseInt(moduleID))
+            languageJSON = Vencord.Webpack.wreq(parseInt(moduleID)).default;
 
-            if (languageJSON !== null ) {
-                const filename = "default-discord-language.json";
-                const exportData = JSON.stringify(languageJSON, null, 4);
+            if (languageJSON !== null) {
+
+                let moddedJSON = structuredClone(languageJSON);
+
+                if (ignoreKnown === "opposite") {
+                    for (const [key, _] of Object.entries(moddedJSON)) {
+                        if (!(yiffcordLanguage[key] || fundAlts[key] || tailAlts[key])) {
+                            delete moddedJSON[key];
+                        }
+                    }
+                } else if (ignoreKnown) {
+                    for (const [key, _] of Object.entries(moddedJSON)) {
+                        if (yiffcordLanguage[key] || fundAlts[key] || tailAlts[key]) {
+                            delete moddedJSON[key];
+                        }
+                    }
+                }
+
+                if (ignoreStrings) {
+                    for (const [key, value] of Object.entries(moddedJSON)) {
+                        if (typeof value === 'string') {
+                            delete moddedJSON[key];
+                        }
+                    }
+                }
+
+                const filename = "discord-language-export.json";
+                const exportData = JSON.stringify(moddedJSON, null, 4);
                 const data = new TextEncoder().encode(exportData);
 
                 if (IS_WEB) {
@@ -71,4 +98,20 @@ export async function exportJSON() {
             id: Toasts.genId()
         });
     }
+}
+
+export async function exportJSON() {
+    handleExport(false, false);
+}
+
+export async function exportUnknown() {
+    handleExport(true, false);
+}
+
+export async function exportSpecial() {
+    handleExport(false, true);
+}
+
+export async function exportKnownSpecial() {
+    handleExport("opposite", true);
 }
