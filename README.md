@@ -2,21 +2,21 @@
  An amelioration of an ancient concept that me and a friend thought of in 2020. I am so sorry.
 ## Installation
 
-### [*BetterDiscord*](https://betterdiscord.app)
-
-**Requires [*Zere's Plugin Library*](https://betterdiscord.app/plugin/ZeresPluginLibrary).**
-
-Once you have that, just download the plugin, drag it into your Plugins folder and switch it on. Welcome to your new hell.
-
----
-
 ### [*Vencord*](https://vencord.dev/)
 
 Download the repo and grab the `furryLanguage` folder from within `vencord`.
 
-[*Build Vencord from source*](https://github.com/Vendicated/Vencord/blob/main/docs/1_INSTALLING.md) with the `furryLanguage` folder in your `src/plugins` folder.
+[*Build Vencord from source*](https://github.com/Vendicated/Vencord/blob/main/docs/1_INSTALLING.md) with the `furryLanguage` folder in your `src/userplugins` folder.
 
 Or something like that.
+
+---
+
+### ~~[*BetterDiscord*](https://betterdiscord.app)~~ <sup>*UNMAINTAINED*</sup>
+
+**Requires [*Zere's Plugin Library*](https://betterdiscord.app/plugin/ZeresPluginLibrary).**
+
+Once you have that, just download the plugin, drag it into your Plugins folder and switch it on. Welcome to your new hell.
 
 ---
 
