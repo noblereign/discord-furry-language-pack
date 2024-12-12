@@ -276,14 +276,14 @@ export default definePlugin({
         { // Language pack replacement (discord intl)
             find: "getMessageValue(",
             replacement: {
-                match: /if\((\S) in this\.messages\[(.*?)\]\)\{let n=this\.messages\[(.*?)\]\[(.*?)\]/,
-                replace: "if ($1 in this.messages[$2]){let n=$self.localizeString($4,this.messages[$3][$4])"
+                match: /if\((\S) in this\.messages\[(.*?)\]\)\{let (\S)=this\.messages\[(.*?)\]\[(.*?)\]/,
+                replace: "if ($1 in this.messages[$2]){let $3=$self.localizeString($5,this.messages[$4][$5])"
             }
         },
         { // Error handler (to prevent crashing)
             find: "} is not a known option for select value ${",
             replacement: {
-                match: /throw new a\.MissingValueError\((\w+),(\w+)\)/,
+                match: /throw new \S\.MissingValueError\((\w+),(\w+)\)/,
                 replace: "{ if (e.pushLiteralText) {e.pushLiteralText($self.handleLanguageError($1, $2))} else {$self.handleLanguageError($1, $2)} continue }"
             }
         },

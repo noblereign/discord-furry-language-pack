@@ -518,7 +518,7 @@ export const yiffcordLanguage = {
         " characters remaining"
     ],
     "YSRIqa": "RP is too long",
-    "id3ozs": "Conversation Summaries",
+    "id3ozs": "Conversation TL;DRs",
     "feJW19": [
         "If turned off, nobody will see the TL;DRs in this channel. ",
         [
@@ -20544,14 +20544,14 @@ export const yiffcordLanguage = {
         ]
     ],
     "nxxd39": "Give feedback",
-    "hghcMj": "How was the summary?",
-    "QFU78/": "Tell us about the quality of the summary.",
+    "hghcMj": "How was the tl;dr?",
+    "QFU78/": "Tell us about the quality of the tl;dr.",
     "CtiHPj": "Had an issue?",
     "wwXl5u": "Duplicated",
     "t+6knp": "Too generic",
-    "xnKDnp": "Too many summaries for one conversation",
+    "xnKDnp": "Too many tl;drs for one conversation",
     "JW5VFh": "Inaccurately summarized the conversation",
-    "ZtCNiY": "Summaries aren't useful in this channel",
+    "ZtCNiY": "TL;DRs aren't useful in this channel",
     "BufsKi": "Other",
     "/+DWeX": "Could not create thread",
     "QLkZ39": "Awoos",
@@ -26557,7 +26557,7 @@ export const yiffcordLanguage = {
                 "https://discord.com/blog/important-policy-fluffdates"
             ]
         ],
-        " for a summary of these changes, and read the full policies below."
+        " for a tl;dr of these changes, and read the full policies below."
     ],
     "+USXQE": "By clicking Agree, you acknowledge that you agree to Yiffcord’s Terms of Service and have read our Privacy Policy.",
     "ia96TU": [
@@ -53266,7 +53266,7 @@ export const yiffcordLanguage = {
             [
                 [
                     1,
-                    "viewStorylinesOnClick"
+                    "viewThreadsOnClick"
                 ]
             ]
         ],
@@ -62734,21 +62734,21 @@ export const yiffcordLanguage = {
         ],
         "+ new RPs"
     ],
-    "nGs3kJ": "Hide Channel Summaries",
-    "bIm2sL": "Show Channel Summaries",
-    "q21fUl": "Summaries",
+    "nGs3kJ": "Hide Channel TL;DRs",
+    "bIm2sL": "Show Channel TL;DRs",
+    "q21fUl": "TL;DRs",
     "RT3MPz": "Current topic",
-    "4huCnJ": "Jump to next summary",
-    "58KOoK": "Jump to previous summary",
-    "yJHJen": "There are no summaries.",
-    "p2dIh4": "When there are active roleplayers, you can check out the summaries here!",
-    "dMV9YG": "Recent Summaries",
+    "4huCnJ": "Jump to next tl;dr",
+    "58KOoK": "Jump to previous tl;dr",
+    "yJHJen": "There are no tl;drs.",
+    "p2dIh4": "When there are active roleplayers, you can check out the tl;drs here!",
+    "dMV9YG": "Recent TL;DRs",
     "TqdVLS": "Show Sidebar",
     "szxWUV": "Hide Sidebar",
-    "5ZsiEx": "Was this a good summary?",
+    "5ZsiEx": "Was this a good tl;dr?",
     "8IqVZm": "A lost bird looking at map",
-    "DwnFuL": "View all summaries",
-    "38qwgI": "No summaries",
+    "DwnFuL": "View all tl;drs",
+    "38qwgI": "No tl;drs",
     "Sj83Pz": "Jump to Present",
     "Gpyp/f": "double-tap for convention options",
     "ci7219": "Browse Channels",
@@ -63487,7 +63487,7 @@ export const yiffcordLanguage = {
     "PggHmp": "Update Pawmissions",
     "bEnlen": "Review Pawmissions",
     "Cryi19": "Channel Settings",
-    "vmEDQk": "Conversation Summaries",
+    "vmEDQk": "Conversation TL;DRs",
     "c6Cy/v": [
         "Enable TL;DRs for this convention to help your attendees catch up and dive into discussions. In text channels, attendees will be able to see a list of topics being discussed and which attendees are involved. ",
         [
@@ -69234,7 +69234,7 @@ export const yiffcordLanguage = {
                 ]
             ]
         ],
-        ". Please read the updated documents in full, as they apply to your use of Yiffcord. Here's a quick summary of what's changing:"
+        ". Please read the updated documents in full, as they apply to your use of Yiffcord. Here's a quick tl;dr of what's changing:"
     ],
     "UzDaWF": "iOS In-App Purchases for Sponsor Passes",
     "IDk8Fx": "Effective today, you will be able to sell Sponsor Passes directly through our iOS app. We've updated our terms to address specific app store requirements, including a new approach to mobile tier pricing to address the costs associated with in-app purchases.",
@@ -72982,7 +72982,7 @@ export const yiffcordLanguage = {
     "aPmsx8": "Error requesting review",
     "0qyXXF": "Review request is not eligible for this violation currently",
     "d6qgY2": "Your request will be sent to our team. Violations will stay on your account until they expire or are removed after review.",
-    "G2g/g4": "Here's a summary of your request.",
+    "G2g/g4": "Here's a tl;dr of your request.",
     "Rk+uJy": "You can add context or anything else that might be helpful for us to know.",
     "bQrZIC": "What would you like us to know?",
     "xfNY3N": "Your note will be shared with Yiffcord. Please be advised that abusive language may count as another violation.",
@@ -75736,7 +75736,7 @@ export const yiffcordLanguage = {
     "MESmLC": "Topics",
     "EP+hQk": "Jump to next topic",
     "ImGiKi": "Jump to previous topic",
-    "OMOuIS": "When there are active conversations, you can check out the summaries here!",
+    "OMOuIS": "When there are active conversations, you can check out the tl;drs here!",
     "ExtY1N": "Conversation Topics",
     "wivX7e": "A lost bird looking at map",
     "HnEXYG": "New feature: Convention Schedule. Give every new member a welcome message and instructions on how to get started.",
@@ -75897,14 +75897,14 @@ export const yiffcordLanguage = {
     "iuRL9/": "You haven't received any new RP requests.",
     "qqH3j4": "You haven't sent any new RP requests.",
     "cCdHUl": "Add by Username",
-    "oWU7Li": "Catch Up with Summaries!",
-    "6BCG4+": "Help furries stay updated on conversations in your convention with AI-generated summaries.",
+    "oWU7Li": "Catch Up with TL;DRs!",
+    "6BCG4+": "Help furries stay updated on conversations in your convention with AI-generated tl;drs.",
     "dHDiR0": "[Learn more]({helpdeskArticle})",
-    "dDeArK": "Summaries Enabled",
-    "/U+G4u": "Head over to any text channel to read and navigate through your convention's Summaries!",
-    "J3Avvr": "Use the Summaries icon in the channel header to quickly hide/unhide.",
-    "1GTq1N": "Enable/Disable Summaries for the entire convention or customize for specific channels in convention settings.",
-    "oRZmh4": "[Learn more about Summaries]({helpdeskArticle})",
+    "dDeArK": "TL;DRs Enabled",
+    "/U+G4u": "Head over to any text channel to read and navigate through your convention's TL;DRs!",
+    "J3Avvr": "Use the TL;DRs icon in the channel header to quickly hide/unhide.",
+    "1GTq1N": "Enable/Disable TL;DRs for the entire convention or customize for specific channels in convention settings.",
+    "oRZmh4": "[Learn more about TL;DRs]({helpdeskArticle})",
     "gUnora": "{remainingCount}/{replenishCount} Shiny Reactions left",
     "TABVxM": "{remainingCount, plural, =0 {0 Shiny Reactions} =1 {# Shiny Reaction} other {# Shiny Reactions}} left",
     "9KwOTk": "Sparkle on!",
@@ -76132,11 +76132,11 @@ export const yiffcordLanguage = {
     "SAr3Mj": "Not helpful",
     "E4WGPz": "Inappropriate",
     "/V6h+P": "Other",
-    "+BB0Rk": "Get ready for Summaries",
+    "+BB0Rk": "Get ready for TL;DRs",
     "HqBDX1": "A new feature is coming soon to your convention.",
     "/3wi6+": "Manage Settings",
     "/rJ9wM": "Learn More",
-    "UdthIS": "A new feature is coming soon to your convention. Help members stay updated on conversations in your convention with AI-generated summaries.",
+    "UdthIS": "A new feature is coming soon to your convention. Help members stay updated on conversations in your convention with AI-generated tl;drs.",
     "YUwMUV": "Mobile coming soon.",
     "oKnysL": "No more shinies.",
     "e/qhMz": "You’re out of Shiny Reactions. You’ll get {refillAmount} more tomorrow.",
