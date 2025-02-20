@@ -273,20 +273,40 @@ export default definePlugin({
                 replace: "$& $1 = $self.patchLanguage($1, $2);",
             }
         },
-        { // Language pack replacement (discord intl)
+        { // Language pack replacement (discord intl, pre 2025)
             find: "getMessageValue(",
             replacement: {
                 match: /if\((\S) in this\.messages\[(.*?)\]\)\{let (\S)=this\.messages\[(.*?)\]\[(.*?)\]/,
                 replace: "if ($1 in this.messages[$2]){let $3=$self.localizeString($5,this.messages[$4][$5])"
             }
         },
-        { // Error handler (to prevent crashing)
+        { // Language pack replacement (discord intl, Feb 2025)
+            find: "getMessageValue(",
+            replacement: {
+                match: /let (\w+)=this\.messages\[(\w+)\]\[(\w+)\];/,
+                replace: "let $1=$self.localizeString($3,this.messages[$2][$3]);"
+            }
+        },
+
+
+
+        { // Error handler (to prevent crashing) (pre 2025)
             find: "} is not a known option for select value ${",
             replacement: {
                 match: /throw new \S\.MissingValueError\((\w+),(\w+)\)/,
                 replace: "{ if (e.pushLiteralText) {e.pushLiteralText($self.handleLanguageError($1, $2))} else {$self.handleLanguageError($1, $2)} continue }"
             }
         },
+        { // Error handler (to prevent crashing) (Feb 2025)
+            find: "} is not a known option for select value ${",
+            replacement: {
+                match: /throw new \w+\((\w+),(\w+),(\w+)\);/,
+                replace: "{ if (e.pushLiteralText) {e.pushLiteralText($self.handleLanguageError($1, $2))} else {$self.handleLanguageError($1, $2)} continue }"
+            }
+        },
+
+
+
         { // Its too late (Error with notification)
             find: "The intl string context variable",
             replacement: {
@@ -294,7 +314,13 @@ export default definePlugin({
                 replace: "$self.throwLanguageError($1, $2); $&"
             }
         },
-
+        /* { // Its too late (Error with notification, Feb 2025)
+            find: "was provided for the localized message",
+            replacement: {
+                match: /throw new \w+\((\w+),(\w+),(\w+)\);/,
+                replace: "$self.throwLanguageError($1, $2); $&"
+            }
+        } */
     ],
 
     /* flux: {
